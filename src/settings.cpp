@@ -1022,10 +1022,12 @@ void read_settings_xml(pugi::xml_node root)
         collision_track_config.nuclides.insert(b);
       }
     }
-    // Read "particle_type" node from xml
-    if (check_for_node(node_ct, "particle_type")) {
-        collision_track_config.particle_type =
-          get_node_value(node_ct, "particle_type");
+    // New addition: parse set of particle types from xml into collision_track_config
+    if (check_for_node(node_ct, "particle_types")) {
+      auto temp = get_node_array<std::string>(node_ct, "particle_types");
+      for (const auto& b : temp) {
+        collision_track_config.particle_types.insert(b);
+      }
     }
     if (check_for_node(node_ct, "deposited_E_threshold")) {
       collision_track_config.deposited_energy_threshold =

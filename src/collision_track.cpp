@@ -127,13 +127,15 @@ void write_h5_collision_track(const char* filename,
 } // namespace
 
 bool should_record_event(int id_cell, int mt_event, const std::string& nuclide,
-  int id_universe, int id_material, double energy_loss)
+  int id_universe, int id_material, double energy_loss, std::string particle_type)
 {
   auto matches_filter = [](const auto& filter_set, const auto& value) {
     return filter_set.empty() || filter_set.count(value) > 0;
   };
 
   const auto& cfg = settings::collision_track_config;
+  // std::cout << "Particle type: " << particle_type.str() << " should be " << cfg.particle_types[0] << std::endl;
+  // ParticleType checkType = ParticleType(cfg.particle_types);
   return simulation::current_batch > settings::n_inactive &&
          !simulation::collision_track_bank.full() &&
          matches_filter(cfg.cell_ids, id_cell) &&
@@ -143,8 +145,7 @@ bool should_record_event(int id_cell, int mt_event, const std::string& nuclide,
          matches_filter(cfg.nuclides, nuclide) &&
          (cfg.deposited_energy_threshold == 0 ||
            cfg.deposited_energy_threshold < energy_loss) &&
-         (cfg.particle_type == "both" || cfg.particle_type == "neutron" ||
-           cfg.particle_type == "photon");
+         matches_filter(cfg.particle_types, particle_type);
 }
 
 void collision_track_reserve_bank()
@@ -225,9 +226,9 @@ void collision_track_record(Particle& particle)
   int material_id = model::materials[material_index]->id_;
 
   if (!should_record_event(cell_id, particle.event_mt(), nuclide, universe_id,
-        material_id, delta_E))
+        material_id, delta_E, particle.type().str()))
     return;
-  std::cout << "Writing" << std::endl;
+  // std::cout << "Writing" << std::endl;
   CollisionTrackSite site;
   site.r = particle.r();
   site.u = particle.u();

@@ -44,7 +44,9 @@ struct CollisionTrackConfig {
     material_ids; //!< Material IDs where collisions will be written
   std::unordered_set<std::string>
     nuclides; //!< Nuclides where collisions will be written
-  std::string particle_type {"both"};      //!< Type of particle to be tracked
+  // New addition: store particle types in set of strings
+  std::unordered_set<std::string> 
+    particle_types; //!< Type of particle to be tracked
   double deposited_energy_threshold {0.0}; //!< Minimum deposited energy [eV]
   int64_t max_collisions {
     1000};               //!< Maximum events recorded per collision track file
