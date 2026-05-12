@@ -195,6 +195,13 @@ void collision_track_flush_bank()
 
 void collision_track_record(Particle& particle)
 {
+
+  // If particle is an electron or a positron, skip
+  if (particle.type() == ParticleType::electron)
+    return;
+  if (particle.type() == ParticleType::positron)
+    return;
+
   int cell_index = particle.lowest_coord().cell();
   if (cell_index == C_NONE)
     return;
