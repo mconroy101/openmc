@@ -469,6 +469,9 @@ void sample_photon_reaction(Particle& p)
 
 void sample_electron_reaction(Particle& p)
 {
+  // EDIT MC: Define a nuclide for reaction at random from material
+  int i_element = sample_element(p);
+  
   // TODO: create reaction types
 
   if (settings::electron_treatment == ElectronTreatment::TTB) {
@@ -483,6 +486,9 @@ void sample_electron_reaction(Particle& p)
 
 void sample_positron_reaction(Particle& p)
 {
+  // EDIT MC: Define a nuclide for reaction at random from material
+  int i_element = sample_element(p);
+  
   // TODO: create reaction types
 
   if (settings::electron_treatment == ElectronTreatment::TTB) {

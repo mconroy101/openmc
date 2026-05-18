@@ -406,10 +406,10 @@ void Particle::event_collide()
     collision_mg(*this);
   }
 
-  // Collision track feature to recording particle interaction
-  if (settings::collision_track) {
-    collision_track_record(*this);
-  }
+  // // Collision track feature to recording particle interaction
+  // if (settings::collision_track) {
+  //   collision_track_record(*this);
+  // }
 
   // Score collision estimator tallies -- this is done after a collision
   // has occurred rather than before because we need information on the

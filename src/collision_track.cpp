@@ -129,6 +129,7 @@ void write_h5_collision_track(const char* filename,
 bool should_record_event(int id_cell, int mt_event, const std::string& nuclide,
   int id_universe, int id_material, double energy_loss, std::string particle_type)
 {
+  std::cout << id_cell << " | " << mt_event << " | " << nuclide  << " | " << id_universe << " | " << id_material << " | " << energy_loss << " | " << particle_type << std::endl;
   auto matches_filter = [](const auto& filter_set, const auto& value) {
     return filter_set.empty() || filter_set.count(value) > 0;
   };
@@ -198,12 +199,13 @@ void collision_track_flush_bank()
 
 void collision_track_record(Particle& particle)
 {
-
+  // std::cout << "Calling 'collision_track_record()'" << std::endl;
+  // std::cout << "Particle type: " << particle.type().str() << std::endl;
   // If particle is an electron or a positron, skip
-  if (particle.type() == ParticleType::electron())
-    return;
-  if (particle.type() == ParticleType::positron())
-    return;
+  // if (particle.type() == ParticleType::electron())
+  //   return;
+  // if (particle.type() == ParticleType::positron())
+  //   return;
 
   int cell_index = particle.lowest_coord().cell();
   if (cell_index == C_NONE)
@@ -218,16 +220,18 @@ void collision_track_record(Particle& particle)
     nuclide_id = nuclide_ptr->particle_type().pdg_number();
   }
   int universe_id = model::universes[particle.lowest_coord().universe()]->id_;
+  // std::cout << "Universe id: " << universe_id << std::endl;
   double delta_E = particle.E_last() - particle.E();
+  // std::cout << "E_i : " << particle.E_last() << ", E_f: " << particle.E() << std::endl;
   int material_index = particle.material();
-  if (material_index == C_NONE)
-    return;
-
-  int material_id = model::materials[material_index]->id_;
-
-  if (!should_record_event(cell_id, particle.event_mt(), nuclide, universe_id,
-        material_id, delta_E, particle.type().str()))
-    return;
+  int material_id = 0;
+  if (material_index != C_NONE) {
+    material_id = model::materials[material_index]->id_;
+  }
+  // std::cout << delta_E << std::endl;
+  // if (!should_record_event(cell_id, particle.event_mt(), nuclide, universe_id,
+  //       material_id, delta_E, particle.type().str()))
+  //   return;
   // std::cout << "Writing" << std::endl;
   CollisionTrackSite site;
   site.r = particle.r();
@@ -246,6 +250,7 @@ void collision_track_record(Particle& particle)
   site.particle = particle.type();
   site.parent_id = particle.id();
   site.progeny_id = particle.n_progeny();
+  // write_message(1, "  Collision energy: {}", site.E);
   simulation::collision_track_bank.thread_safe_append(site);
 }
 
