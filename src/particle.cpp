@@ -33,6 +33,7 @@
 #include "openmc/tallies/tally_scoring.h"
 #include "openmc/track_output.h"
 #include "openmc/weight_windows.h"
+#include "openmc/photon_track.h"
 
 #ifdef OPENMC_DAGMC_ENABLED
 #include "DagMC.hpp"
@@ -619,6 +620,12 @@ void Particle::pht_secondary_particles()
   if (it != model::pulse_height_cells.end()) {
     int index = std::distance(model::pulse_height_cells.begin(), it);
     pht_storage()[index] -= E();
+    // Record collision event here for photos. That way it gives the energy of the electron
+    photon_track_record(*this);
+    // // Collision track feature to recording particle interaction
+  // if (settings::collision_track) {
+  //   collision_track_record(*this);
+  // }
   }
 }
 

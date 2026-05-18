@@ -884,7 +884,7 @@ void transport_history_based_single_particle(Particle& p)
       if (p.collision_distance() > p.boundary().distance()) {
         p.event_cross_surface();
       } else if (p.alive()) {
-        p.event_collide();
+        p.event_collide(); // Here we add the energy deposited by a photon
       }
     }
     p.event_check_limit_and_revive();
