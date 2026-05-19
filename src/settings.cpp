@@ -12,6 +12,7 @@
 
 #include "openmc/capi.h"
 #include "openmc/collision_track.h"
+#include "openmc/photon_track.h"
 #include "openmc/constants.h"
 #include "openmc/container_util.h"
 #include "openmc/distribution.h"
@@ -48,6 +49,7 @@ namespace settings {
 bool assume_separate {false};
 bool check_overlaps {false};
 bool collision_track {false};
+bool photon_track {true};
 bool cmfd_run {false};
 bool confidence_intervals {false};
 bool create_delayed_neutrons {true};
@@ -135,6 +137,7 @@ double source_rejection_fraction {0.05};
 double free_gas_threshold {400.0};
 std::unordered_set<int> source_write_surf_id;
 CollisionTrackConfig collision_track_config {};
+PhotonTrackConfig photon_track_config {};
 int64_t ssw_max_particles;
 int64_t ssw_max_files;
 int64_t ssw_cell_id {C_NONE};

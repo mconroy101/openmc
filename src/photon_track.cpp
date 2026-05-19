@@ -1,4 +1,4 @@
-#include "openmc/collision_track.h"
+#include "openmc/photon_track.h"
 
 #include <algorithm>
 #include <string>
@@ -30,65 +30,55 @@ namespace openmc {
 
 namespace {
 
-hid_t h5_collision_track_banktype()
+// hid_t h5_collision_track_banktype()
+// {
+//   hid_t banktype = H5Tcreate(H5T_COMPOUND, sizeof(CollisionTrackSite));
+//   H5Tinsert(
+//     banktype, "time", HOFFSET(CollisionTrackSite, time), H5T_NATIVE_DOUBLE);
+//   H5Tinsert(banktype, "event_mt", HOFFSET(CollisionTrackSite, event_mt),
+//     H5T_NATIVE_INT);
+//   H5Tinsert(
+//     banktype, "cell_id", HOFFSET(CollisionTrackSite, cell_id), H5T_NATIVE_INT);
+//   H5Tinsert(banktype, "particle", HOFFSET(CollisionTrackSite, particle),
+//     H5T_NATIVE_INT);
+//   H5Tinsert(banktype, "parent_id", HOFFSET(CollisionTrackSite, parent_id),
+//     H5T_NATIVE_INT64);
+//   return banktype;
+// }
+
+hid_t h5_photon_track_banktype()
 {
-  hid_t postype = H5Tcreate(H5T_COMPOUND, sizeof(Position));
-  H5Tinsert(postype, "x", HOFFSET(Position, x), H5T_NATIVE_DOUBLE);
-  H5Tinsert(postype, "y", HOFFSET(Position, y), H5T_NATIVE_DOUBLE);
-  H5Tinsert(postype, "z", HOFFSET(Position, z), H5T_NATIVE_DOUBLE);
+  hid_t banktype = H5Tcreate(H5T_COMPOUND, sizeof(PhotonTrackSite));
+  H5Tinsert(banktype, "parent_id", HOFFSET(PhotonTrackSite, parent_id),H5T_NATIVE_INT64);
+  H5Tinsert(banktype, "x", HOFFSET(PhotonTrackSite, r.x), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "y", HOFFSET(PhotonTrackSite, r.y), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "z", HOFFSET(PhotonTrackSite, r.z), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "time", HOFFSET(PhotonTrackSite, time), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "dE", HOFFSET(PhotonTrackSite, dE), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "event_mt", HOFFSET(PhotonTrackSite, event_mt), H5T_NATIVE_INT);
+  H5Tinsert(banktype, "cell_id", HOFFSET(PhotonTrackSite, cell_id), H5T_NATIVE_INT);
 
-  hid_t banktype = H5Tcreate(H5T_COMPOUND, sizeof(CollisionTrackSite));
-
-  H5Tinsert(banktype, "r", HOFFSET(CollisionTrackSite, r), postype);
-  H5Tinsert(banktype, "u", HOFFSET(CollisionTrackSite, u), postype);
-  H5Tinsert(banktype, "E", HOFFSET(CollisionTrackSite, E), H5T_NATIVE_DOUBLE);
-  H5Tinsert(banktype, "dE", HOFFSET(CollisionTrackSite, dE), H5T_NATIVE_DOUBLE);
-  H5Tinsert(
-    banktype, "time", HOFFSET(CollisionTrackSite, time), H5T_NATIVE_DOUBLE);
-  H5Tinsert(
-    banktype, "wgt", HOFFSET(CollisionTrackSite, wgt), H5T_NATIVE_DOUBLE);
-  H5Tinsert(banktype, "event_mt", HOFFSET(CollisionTrackSite, event_mt),
-    H5T_NATIVE_INT);
-  H5Tinsert(banktype, "delayed_group",
-    HOFFSET(CollisionTrackSite, delayed_group), H5T_NATIVE_INT);
-  H5Tinsert(
-    banktype, "cell_id", HOFFSET(CollisionTrackSite, cell_id), H5T_NATIVE_INT);
-  H5Tinsert(banktype, "nuclide_id", HOFFSET(CollisionTrackSite, nuclide_id),
-    H5T_NATIVE_INT);
-  H5Tinsert(banktype, "material_id", HOFFSET(CollisionTrackSite, material_id),
-    H5T_NATIVE_INT);
-  H5Tinsert(banktype, "universe_id", HOFFSET(CollisionTrackSite, universe_id),
-    H5T_NATIVE_INT);
-  H5Tinsert(banktype, "n_collision", HOFFSET(CollisionTrackSite, n_collision),
-    H5T_NATIVE_INT);
-  H5Tinsert(banktype, "particle", HOFFSET(CollisionTrackSite, particle),
-    H5T_NATIVE_INT);
-  H5Tinsert(banktype, "parent_id", HOFFSET(CollisionTrackSite, parent_id),
-    H5T_NATIVE_INT64);
-  H5Tinsert(banktype, "progeny_id", HOFFSET(CollisionTrackSite, progeny_id),
-    H5T_NATIVE_INT64);
-  H5Tclose(postype);
   return banktype;
 }
 
-void write_collision_track_bank(hid_t group_id,
-  openmc::span<CollisionTrackSite> collision_track_bank,
+void write_photon_track_bank(hid_t group_id,
+  openmc::span<PhotonTrackSite> photon_track_bank,
   const openmc::vector<int64_t>& bank_index)
 {
-  hid_t banktype = h5_collision_track_banktype();
+  hid_t banktype = h5_photon_track_banktype();
 #ifdef OPENMC_MPI
-  write_bank_dataset("collision_track_bank", group_id, collision_track_bank,
-    bank_index, banktype, banktype, mpi::collision_track_site);
+  write_bank_dataset("photon_track_bank", group_id, photon_track_bank,
+    bank_index, banktype, banktype, mpi::photon_track_site);
 #else
-  write_bank_dataset("collision_track_bank", group_id, collision_track_bank,
+  write_bank_dataset("photon_track_bank", group_id, photon_track_bank,
     bank_index, banktype, banktype);
 #endif
 
   H5Tclose(banktype);
 }
 
-void write_h5_collision_track(const char* filename,
-  openmc::span<CollisionTrackSite> collision_track_bank,
+void write_h5_photon_track(const char* filename,
+  openmc::span<PhotonTrackSite> photon_track_bank,
   const openmc::vector<int64_t>& bank_index)
 {
 #ifdef PHDF5
@@ -98,14 +88,14 @@ void write_h5_collision_track(const char* filename,
 #endif
 
   if (!filename)
-    fatal_error("write_h5_collision_track filename needs a nonempty name.");
+    fatal_error("write_h5_photon_track filename needs a nonempty name.");
 
   std::string filename_(filename);
   const auto extension = get_file_extension(filename_);
   if (extension.empty()) {
     filename_.append(".h5");
   } else if (extension != "h5") {
-    warning("write_h5_collision_track was passed a file extension differing "
+    warning("write_h5_photon_track was passed a file extension differing "
             "from .h5, but an hdf5 file will be written.");
   }
 
@@ -114,11 +104,11 @@ void write_h5_collision_track(const char* filename,
     file_id = file_open(filename_.c_str(), 'w', true);
 
     // Write filetype and version info
-    write_attribute(file_id, "filetype", "collision_track");
-    write_attribute(file_id, "version", VERSION_COLLISION_TRACK);
+    write_attribute(file_id, "filetype", "photon_track");
+    write_attribute(file_id, "version", VERSION_PHOTON_TRACK);
   }
 
-  write_collision_track_bank(file_id, collision_track_bank, bank_index);
+  write_photon_track_bank(file_id, photon_track_bank, bank_index);
 
   if (mpi::master || parallel)
     file_close(file_id);
@@ -126,136 +116,91 @@ void write_h5_collision_track(const char* filename,
 
 } // namespace
 
-bool should_record_event(int id_cell, int mt_event, const std::string& nuclide,
-  int id_universe, int id_material, double energy_loss, std::string particle_type)
-{
-  std::cout << id_cell << " | " << mt_event << " | " << nuclide  << " | " << id_universe << " | " << id_material << " | " << energy_loss << " | " << particle_type << std::endl;
-  auto matches_filter = [](const auto& filter_set, const auto& value) {
-    return filter_set.empty() || filter_set.count(value) > 0;
-  };
+// bool should_record_event(int id_cell, int mt_event, const std::string& nuclide,
+//   int id_universe, int id_material, double energy_loss, std::string particle_type)
+// {
+//   std::cout << id_cell << " | " << mt_event << " | " << nuclide  << " | " << id_universe << " | " << id_material << " | " << energy_loss << " | " << particle_type << std::endl;
+//   auto matches_filter = [](const auto& filter_set, const auto& value) {
+//     return filter_set.empty() || filter_set.count(value) > 0;
+//   };
 
-  const auto& cfg = settings::collision_track_config;
-  // std::cout << "Particle type: " << particle_type.str() << " should be " << cfg.particle_types[0] << std::endl;
-  // ParticleType checkType = ParticleType(cfg.particle_types);
-  return simulation::current_batch > settings::n_inactive &&
-         !simulation::collision_track_bank.full() &&
-         matches_filter(cfg.cell_ids, id_cell) &&
-         matches_filter(cfg.mt_numbers, mt_event) &&
-         matches_filter(cfg.universe_ids, id_universe) &&
-         matches_filter(cfg.material_ids, id_material) &&
-         matches_filter(cfg.nuclides, nuclide) &&
-         (cfg.deposited_energy_threshold == 0 ||
-           cfg.deposited_energy_threshold < energy_loss) &&
-         matches_filter(cfg.particle_types, particle_type);
+//   const auto& cfg = settings::photon_track_config;
+//   // std::cout << "Particle type: " << particle_type.str() << " should be " << cfg.particle_types[0] << std::endl;
+//   // ParticleType checkType = ParticleType(cfg.particle_types);
+//   return simulation::current_batch > settings::n_inactive &&
+//          !simulation::photon_track_bank.full() &&
+//          matches_filter(cfg.cell_ids, id_cell) &&
+//          matches_filter(cfg.mt_numbers, mt_event) &&
+//          matches_filter(cfg.universe_ids, id_universe) &&
+//          matches_filter(cfg.material_ids, id_material) &&
+//          matches_filter(cfg.nuclides, nuclide) &&
+//          (cfg.deposited_energy_threshold == 0 ||
+//            cfg.deposited_energy_threshold < energy_loss) &&
+//          matches_filter(cfg.particle_types, particle_type);
+// }
+
+void photon_track_reserve_bank()
+{
+  simulation::photon_track_bank.reserve(
+    settings::photon_track_config.max_collisions);
 }
 
-void collision_track_reserve_bank()
+void photon_track_flush_bank()
 {
-  simulation::collision_track_bank.reserve(
-    settings::collision_track_config.max_collisions);
-}
-
-void collision_track_flush_bank()
-{
-  const auto& cfg = settings::collision_track_config;
+  const auto& cfg = settings::photon_track_config;
   if (simulation::ct_current_file > cfg.max_files)
     return;
 
   bool last_batch = (simulation::current_batch == settings::n_batches);
-  if (!simulation::collision_track_bank.full() && !last_batch)
+  if (!simulation::photon_track_bank.full() && !last_batch)
     return;
 
-  auto size = simulation::collision_track_bank.size();
+  auto size = simulation::photon_track_bank.size();
   if (size == 0 && !last_batch)
     return;
 
-  auto collision_track_work_index = mpi::calculate_parallel_index_vector(size);
-  openmc::span<CollisionTrackSite> collisiontrackbankspan(
-    simulation::collision_track_bank.begin(), size);
+  auto photon_track_work_index = mpi::calculate_parallel_index_vector(size);
+  openmc::span<PhotonTrackSite> photontrackbankspan(
+    simulation::photon_track_bank.begin(), size);
 
-  std::string ext = cfg.mcpl_write ? "mcpl" : "h5";
-  auto filename = fmt::format("{}collision_track.{}.{}", settings::path_output,
+  std::string ext = "h5";
+  auto filename = fmt::format("{}photon_track.{}.{}", settings::path_output,
     simulation::ct_current_file, ext);
 
   if (cfg.max_files == 1 || (simulation::ct_current_file == 1 && last_batch)) {
-    filename = settings::path_output + "collision_track." + ext;
+    filename = settings::path_output + "photon_track." + ext;
   }
   write_message("Creating {}...", filename, 4);
 
-  if (cfg.mcpl_write) {
-    write_mcpl_collision_track(
-      filename.c_str(), collisiontrackbankspan, collision_track_work_index);
-  } else {
-    write_h5_collision_track(
-      filename.c_str(), collisiontrackbankspan, collision_track_work_index);
-  }
+  // Remove option to write as mcpl
+  write_h5_photon_track(filename.c_str(), photontrackbankspan, photon_track_work_index);
 
-  simulation::collision_track_bank.clear();
+
+  simulation::photon_track_bank.clear();
   if (!last_batch && cfg.max_files >= 1) {
-    collision_track_reserve_bank();
+    photon_track_reserve_bank();
   }
   ++simulation::ct_current_file;
 }
 
-void collision_track_record(Particle& particle)
+void photon_track_record(Particle& particle)
 {
-  // std::cout << "Calling 'collision_track_record()'" << std::endl;
-  // std::cout << "Particle type: " << particle.type().str() << std::endl;
-  // If particle is an electron or a positron, skip
-  // if (particle.type() == ParticleType::electron())
-  //   return;
-  // if (particle.type() == ParticleType::positron())
-  //   return;
-
   int cell_index = particle.lowest_coord().cell();
   int cell_id = 0;
   if (cell_index != C_NONE) {
     cell_id = model::cells[cell_index]->id_;
 
   }
-
-  // std::cout << "Cell id: " << cell_id << std::endl;
-  const auto* nuclide_ptr = data::nuclides[particle.event_nuclide()].get();
-  std::string nuclide = "none";
-  if (!nuclide_ptr) {
-    nuclide = nuclide_ptr->name_;
-    // std::cout << "Nuclide: " << nuclide << std::endl;
-  }
-
-  int universe_id = model::universes[particle.lowest_coord().universe()]->id_;
-  // std::cout << "Universe id: " << universe_id << std::endl;
-  double delta_E = particle.E_last() - particle.E();
-  // std::cout << "E_i : " << particle.E_last() << ", E_f: " << particle.E() << std::endl;
-  int material_index = particle.material();
-  int material_id = 0;
-  if (material_index != C_NONE) {
-    material_id = model::materials[material_index]->id_;
-  }
-  // std::cout << delta_E << std::endl;
-  // if (!should_record_event(cell_id, particle.event_mt(), nuclide, universe_id,
-  //       material_id, delta_E, particle.type().str()))
-  //   return;
-  // std::cout << "Writing" << std::endl;
-  CollisionTrackSite site;
+  double delta_E = particle.E_last();
+  PhotonTrackSite site;
   site.r = particle.r();
-  site.u = particle.u();
-  site.E = particle.E_last();
   site.dE = delta_E;
   site.time = particle.time();
-  site.wgt = particle.wgt();
   site.event_mt = particle.event_mt();
-  site.delayed_group = particle.delayed_group();
   site.cell_id = cell_id;
-  site.nuclide_id = 0;
-    // 10000 * nuclide_ptr->Z_ + 10 * nuclide_ptr->A_ + nuclide_ptr->metastable_;
-  site.material_id = material_id;
-  site.universe_id = universe_id;
-  site.n_collision = particle.n_collision();
-  site.particle = particle.type();
   site.parent_id = particle.id();
-  site.progeny_id = particle.n_progeny();
-  // write_message(1, "  Collision energy: {}", site.E);
-  simulation::collision_track_bank.thread_safe_append(site);
+  // write_message(1, "  photon energy: {}", site.E);
+  simulation::photon_track_bank.thread_safe_append(site);
 }
 
 } // namespace openmc

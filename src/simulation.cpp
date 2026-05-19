@@ -3,6 +3,7 @@ git rebase develop#include "openmc/simulation.h"
 #include "openmc/bank.h"
 #include "openmc/capi.h"
 #include "openmc/collision_track.h"
+#include "openmc/photon_track.h"
 #include "openmc/container_util.h"
 #include "openmc/eigenvalue.h"
 #include "openmc/error.h"
@@ -379,6 +380,10 @@ void allocate_banks()
     // Allocate collision track bank
     collision_track_reserve_bank();
   }
+  if (settings::photon_track) {
+    // Allocate collision track bank
+    photon_track_reserve_bank();
+  }
 }
 
 void initialize_batch()
@@ -525,6 +530,11 @@ void finalize_batch()
   // Write collision track file if requested
   if (settings::collision_track) {
     collision_track_flush_bank();
+  }
+  // Write collision track file if requested
+  write_message(1, "  Checking whether to save photon track bank...");
+  if (settings::photon_track) {
+    photon_track_flush_bank();
   }
 }
 
@@ -863,9 +873,12 @@ void free_memory_simulation()
 
 static void record_photon_collision_energy(Particle& p, double& E_dep)
 {
+  double E_new = p.pht_storage()[0] - E_dep;
+  if (E_new == 0.0)
+    return;
   double orig_E_last = p.E_last();
-  p.E_last() = p.pht_storage()[0] - E_dep;
-  collision_track_record(p);
+  p.E_last() = E_new;
+  photon_track_record(p);
   p.E_last() = orig_E_last;
   E_dep = p.pht_storage()[0];
 }
@@ -889,13 +902,16 @@ void transport_history_based_single_particle(Particle& p)
     }
     p.event_check_limit_and_revive();
     p.event_revive_from_secondary();
-    // Add new collision energy from pht into collision tracker
+    
+    // Add new photon energy from pht into collision tracker
     if (p.type().is_photon()) {
       record_photon_collision_energy(p, E_dep);
     }
+  // write_message(1, "  Current PHT: {}", p.pht_storage()[0]);
   }
-  // Write collision file now, with "fake" particle info
+  // Write photon file now, with "fake" particle info
   record_photon_collision_energy(p, E_dep);
+  // write_message(1, "  The {} died. RIP.", p.type().str());
   p.event_death();
 }
 

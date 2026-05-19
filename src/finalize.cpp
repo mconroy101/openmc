@@ -5,6 +5,7 @@
 #include "openmc/chain.h"
 #include "openmc/cmfd_solver.h"
 #include "openmc/collision_track.h"
+#include "openmc/photon_track.h"
 #include "openmc/constants.h"
 #include "openmc/cross_sections.h"
 #include "openmc/dagmc.h"
@@ -81,6 +82,7 @@ int openmc_finalize()
   settings::assume_separate = false;
   settings::check_overlaps = false;
   settings::collision_track_config = CollisionTrackConfig {};
+  settings::photon_track_config = PhotonTrackConfig {};
   settings::confidence_intervals = false;
   settings::create_fission_neutrons = true;
   settings::create_delayed_neutrons = true;
@@ -191,6 +193,9 @@ int openmc_finalize()
   }
   if (mpi::collision_track_site != MPI_DATATYPE_NULL) {
     MPI_Type_free(&mpi::collision_track_site);
+  }
+  if (mpi::photon_track_site != MPI_DATATYPE_NULL) {
+    MPI_Type_free(&mpi::photon_track_site);
   }
 #endif
 

@@ -1213,6 +1213,29 @@ def read_collision_track_hdf5(filename):
 
     return data
 
+def read_photon_track_hdf5(filename):
+    """Read a collision track file in HDF5 format.
+
+    Parameters
+    ----------
+    filename : str or path-like
+        Path to the HDF5 collision track file.
+
+    Returns
+    -------
+    numpy.ndarray
+        Structured array containing collision track data.
+
+    See Also
+    --------
+    read_collision_track_file
+    """
+
+    with h5py.File(filename, 'r') as file:
+        data = file["photon_track_bank"][:]
+
+    return data
+
 
 def read_collision_track_mcpl(file_path):
     """Read a collision track file in MCPL format.

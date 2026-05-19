@@ -20,4 +20,4 @@ void photon_track_record(Particle& particle);
 
 } // namespace openmc
 
-#endif // OPENMC_COLLISION_TRACK_H
+#endif // OPENMC_PHOTON_TRACK_H

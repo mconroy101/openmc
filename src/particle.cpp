@@ -9,6 +9,7 @@
 #include "openmc/capi.h"
 #include "openmc/cell.h"
 #include "openmc/collision_track.h"
+#include "openmc/photon_track.h"
 #include "openmc/constants.h"
 #include "openmc/dagmc.h"
 #include "openmc/error.h"
@@ -33,7 +34,6 @@
 #include "openmc/tallies/tally_scoring.h"
 #include "openmc/track_output.h"
 #include "openmc/weight_windows.h"
-#include "openmc/photon_track.h"
 
 #ifdef OPENMC_DAGMC_ENABLED
 #include "DagMC.hpp"
@@ -424,7 +424,14 @@ void Particle::event_collide()
       score_analog_tally_mg(*this);
     }
   }
-
+  // TO REMOVE
+  // write_message(1, "A total {} eV of secondary particles was generated", this->bank_second_E());
+  // for (const auto& sec : this->secondary_bank()) {
+  //   // if (sec.particle.is_photon()){
+  //     write_message(1, "    {} with energy: {}", sec.particle.str(), sec.E);
+  //   // }
+    
+  // }
   if (!model::active_pulse_height_tallies.empty() && type().is_photon()) {
     pht_collision_energy();
   }
@@ -621,7 +628,7 @@ void Particle::pht_secondary_particles()
     int index = std::distance(model::pulse_height_cells.begin(), it);
     pht_storage()[index] -= E();
     // Record collision event here for photos. That way it gives the energy of the electron
-    photon_track_record(*this);
+    // photon_track_record(*this);
     // // Collision track feature to recording particle interaction
   // if (settings::collision_track) {
   //   collision_track_record(*this);

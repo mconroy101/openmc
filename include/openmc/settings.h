@@ -53,6 +53,14 @@ struct CollisionTrackConfig {
   int64_t max_files {1}; //!< Maximum number of collision track files
 };
 
+struct PhotonTrackConfig {
+  std::unordered_set<int>
+    cell_ids; //!< Cell ids where collisions will be written
+  int64_t max_collisions {
+    10000000};               //!< Maximum events recorded per collision track file
+  int64_t max_files {1}; //!< Maximum number of collision track files
+};
+
 //==============================================================================
 // Global variable declarations
 //==============================================================================
@@ -63,6 +71,7 @@ namespace settings {
 extern bool assume_separate;      //!< assume tallies are spatially separate?
 extern bool check_overlaps;       //!< check overlaps in geometry?
 extern bool collision_track;      //!< flag to use collision track feature?
+extern bool photon_track;      //!< flag to use photon track feature?
 extern bool confidence_intervals; //!< use confidence intervals for results?
 extern bool
   create_fission_neutrons; //!< create fission neutrons (fixed source)?
@@ -172,6 +181,7 @@ extern std::unordered_set<int>
 extern std::unordered_set<int>
   source_write_surf_id; //!< Surface ids where sources will be written
 extern CollisionTrackConfig collision_track_config;
+extern PhotonTrackConfig photon_track_config;
 extern double source_rejection_fraction; //!< Minimum fraction of source sites
                                          //!< that must be accepted
 extern double free_gas_threshold;        //!< Threshold multiplier for free gas

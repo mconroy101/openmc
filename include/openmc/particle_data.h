@@ -76,6 +76,16 @@ struct CollisionTrackSite {
   int64_t progeny_id;
 };
 
+// Add struct to store photon collision data
+struct PhotonTrackSite {
+  Position r;
+  double dE;
+  double time {0.0};
+  int event_mt {0};
+  int cell_id {0};
+  int64_t parent_id;
+};
+
 //! State of a particle used for particle track files
 struct TrackState {
   Position r;           //!< Position in [cm]

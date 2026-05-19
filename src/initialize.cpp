@@ -234,6 +234,9 @@ void initialize_mpi(MPI_Comm intracomm)
   MPI_Type_create_struct(
     16, blocksc, dispc, typesc, &mpi::collision_track_site);
   MPI_Type_commit(&mpi::collision_track_site);
+  MPI_Type_create_struct(
+    16, blocksc, dispc, typesc, &mpi::photon_track_site);
+  MPI_Type_commit(&mpi::photon_track_site);
 }
 #endif // OPENMC_MPI
 
