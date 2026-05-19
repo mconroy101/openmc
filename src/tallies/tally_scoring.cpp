@@ -2752,8 +2752,8 @@ void score_pulse_height_tally(Particle& p, const vector<int>& tallies)
       // Temporarily change energy of particle to pulse-height value
       p.E_last() = p.pht_storage()[index];
       // write_message(1, "  Energy to save: {}", p.pht_storage()[index]);
-      // Write collision file now, with "fake" particle info
-      collision_track_record(p);
+      // // Write collision file now, with "fake" particle info
+      // collision_track_record(p);
       
       // Initialize an iterator over valid filter bin combinations. If
       // there are no valid combinations, use a continue statement to ensure
