@@ -861,6 +861,15 @@ void free_memory_simulation()
   simulation::entropy.clear();
 }
 
+static void record_photon_collision_energy(Particle& p, double& E_dep)
+{
+  double orig_E_last = p.E_last();
+  p.E_last() = p.pht_storage()[0] - E_dep;
+  collision_track_record(p);
+  p.E_last() = orig_E_last;
+  E_dep = p.pht_storage()[0];
+}
+
 void transport_history_based_single_particle(Particle& p)
 {
   double E_dep = 0.0;
@@ -881,35 +890,12 @@ void transport_history_based_single_particle(Particle& p)
     p.event_check_limit_and_revive();
     p.event_revive_from_secondary();
     // Add new collision energy from pht into collision tracker
-    // Write collision file now, with "fake" particle info
     if (p.type().is_photon()) {
-      double orig_E_last = p.E_last();
-      p.E_last() = p.pht_storage()[0] - E_dep;
-      // write_message(1, "Particle {} deposited {} eV", p.id(), p.E_last());
-      // write_message(1, "  Particle {} PHT: {}", p.id(), p.pht_storage()[0]);
-      // write_message(1, "  Particle {} CT: {}", p.id(), p.E_last());
-      collision_track_record(p);
-      // write_message(1, "  Recorded data for {} {}", p.type().str(), p.id());
-      // p.pht_storage()[0] = 0.0;
-      p.E_last() = orig_E_last;
-      E_dep = p.pht_storage()[0];
+      record_photon_collision_energy(p, E_dep);
     }
-    
   }
   // Write collision file now, with "fake" particle info
-  // if (p.type().is_photon()) {
-    double orig_E_last = p.E_last();
-    p.E_last() = p.pht_storage()[0] - E_dep;
-    write_message(1, "Particle {} died as a(n) {} with {} eV", p.id(), p.type().str(), p.E_last());
-    write_message(1, "  Particle {} PHT: {}", p.id(), p.pht_storage()[0]);
-    write_message(1, "  Particle {} CT: {}", p.id(), p.E_last());
-    collision_track_record(p);
-    // write_message(1, "  Recorded data for {} {}", p.type().str(), p.id());
-    // p.pht_storage()[0] = 0.0;
-    p.E_last() = orig_E_last;
-    E_dep = p.pht_storage()[0];
-  // }
-  // write_message(1, "  Particle {} died, deposited a total of: {} eV", p.id(), p.pht_storage()[0]);
+  record_photon_collision_energy(p, E_dep);
   p.event_death();
 }
 
