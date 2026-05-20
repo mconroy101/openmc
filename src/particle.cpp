@@ -80,11 +80,11 @@ double Particle::mass() const
 }
 
 bool Particle::create_secondary(
-  double wgt, Direction u, double E, ParticleType type)
+  double wgt, Direction u, double E, ParticleType new_type)
 {
   // If energy is below cutoff for this particle, don't create secondary
   // particle
-  int idx = type.transport_index();
+  int idx = new_type.transport_index();
   if (idx == C_NONE) {
     return false;
   }
@@ -96,7 +96,7 @@ bool Particle::create_secondary(
   n_secondaries()++;
 
   SourceSite bank;
-  bank.particle = type;
+  bank.particle = new_type;
   bank.wgt = wgt;
   bank.r = r();
   bank.u = u;
@@ -111,6 +111,11 @@ bool Particle::create_secondary(
   bank.wgt_ww_born = wgt_ww_born();
   bank.n_split = n_split();
 
+  
+  bank.parent_type = type(); // Store parent type
+  if (new_type.is_photon()) {
+    gamma_second_E() += bank.E;
+  }
   local_secondary_bank().emplace_back(bank);
   return true;
 }
@@ -124,7 +129,7 @@ void Particle::split(double wgt)
   bank.u = u();
   bank.E = settings::run_CE ? E() : g();
   bank.time = time();
-
+  bank.parent_type = type();
   // Convert signed index to a signed surface ID
   if (surface() == SURFACE_NONE) {
     bank.surf_id = SURFACE_NONE;
@@ -182,6 +187,8 @@ void Particle::from_source(const SourceSite* src)
   time_last() = src->time;
   parent_nuclide() = src->parent_nuclide;
   delayed_group() = src->delayed_group;
+
+  parent_type() = src->parent_type;
 
   // Convert signed surface ID to signed index
   if (src->surf_id != SURFACE_NONE) {
@@ -424,14 +431,14 @@ void Particle::event_collide()
       score_analog_tally_mg(*this);
     }
   }
-  // TO REMOVE
-  // write_message(1, "A total {} eV of secondary particles was generated", this->bank_second_E());
-  // for (const auto& sec : this->secondary_bank()) {
-  //   // if (sec.particle.is_photon()){
-  //     write_message(1, "    {} with energy: {}", sec.particle.str(), sec.E);
-  //   // }
-    
-  // }
+  
+  // Iterating using range based for loop
+  // Add to photon track
+  bool correct_parent = (parent_type().is_photon() || parent_type().is_neutron());
+  if (settings::photon_track && type().is_photon() && correct_parent) {
+    record_photon_collision_energy();
+  }
+  
   if (!model::active_pulse_height_tallies.empty() && type().is_photon()) {
     pht_collision_energy();
   }
@@ -439,6 +446,7 @@ void Particle::event_collide()
   // Reset banked weight during collision
   n_bank() = 0;
   bank_second_E() = 0.0;
+  gamma_second_E() = 0.0;
   wgt_bank() = 0.0;
 
   // Clear number of secondaries in this collision. This is
@@ -496,6 +504,32 @@ void Particle::event_revive_from_secondary(const SourceSite& site)
     n_tracks()++;
   }
   bank_second_E() = 0.0;
+void Particle::event_revive_from_secondary()
+{
+  // If particle has too many events, display warning and kill it
+  ++n_event();
+  if (n_event() == settings::max_particle_events) {
+    warning("Particle " + std::to_string(id()) +
+            " underwent maximum number of events.");
+    wgt() = 0.0;
+  }
+
+  // Check for secondary particles if this particle is dead
+  if (!alive()) {
+    // Write final position for this particle
+    if (write_track()) {
+      write_particle_track(*this);
+    }
+    // write_message(1, "The {} has died. RIP.", this->type().str());
+    // If no secondary particles, break out of event loop
+    if (secondary_bank().empty())
+      return;
+    
+    from_source(&secondary_bank().back());
+    secondary_bank().pop_back();
+    n_event() = 0;
+    bank_second_E() = 0.0;
+    gamma_second_E() = 0.0;
 
   // Subtract secondary particle energy from interim pulse-height results.
   // In shared secondary mode, this subtraction was already done on the parent
@@ -636,11 +670,28 @@ void Particle::pht_secondary_particles()
   }
 }
 
+// New function to track photon collision
+void Particle::record_photon_collision_energy()
+{
+  // Need to check whether we are in the correct cell, based on pulse-height tally for now
+  // Only record if we are in a cell included in the pulse-height tally
+  auto it = std::find(model::pulse_height_cells.begin(),
+    model::pulse_height_cells.end(), lowest_coord().cell());
+  if (it == model::pulse_height_cells.end())
+    return;
+
+  double E_new = E_last() - E() - gamma_second_E();
+  double orig_E_last = E_last();
+  E_last() = E_new;
+  photon_track_record(*this);
+  E_last() = orig_E_last;
+}
+
 void Particle::cross_surface(const Surface& surf)
 {
 
   if (settings::verbosity >= 10 || trace()) {
-    write_message(1, "    Crossing surface {}", surf.id_);
+    // write_message(1, "    Crossing surface {}", surf.id_);
   }
 
 // if we're crossing a CSG surface, make sure the DAG history is reset

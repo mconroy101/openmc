@@ -55,6 +55,9 @@ struct SourceSite {
   double wgt_born {1.0};
   double wgt_ww_born {-1.0};
   int64_t n_split {0};
+  int64_t parent_id;
+  int64_t progeny_id;
+  ParticleType parent_type;
 };
 
 struct CollisionTrackSite {
@@ -531,8 +534,10 @@ private:
 
   int n_bank_ {0};
   double bank_second_E_ {0.0};
+  double gamma_second_E_ {0.0};
   double wgt_bank_ {0.0};
   int n_delayed_bank_[MAX_DELAYED_GROUPS];
+  ParticleType parent_type_;
 
   int cell_born_ {-1};
 
@@ -679,6 +684,18 @@ public:
     return bank_second_E_;
   } // energy of last reaction secondaries
   const double& bank_second_E() const { return bank_second_E_; }
+
+  // Post-collision data
+  double& gamma_second_E()
+  {
+    return gamma_second_E_;
+  } // energy of last reaction gammas
+  const double& gamma_second_E() const { return gamma_second_E_; }
+
+  // Particle type of parent (n, p, e, gamma, etc)
+  ParticleType& parent_type() { return parent_type_; }
+  const ParticleType& parent_type() const { return parent_type_; }
+
 
   int& n_bank() { return n_bank_; }        // number of banked fission sites
   double& wgt_bank() { return wgt_bank_; } // weight of banked fission sites

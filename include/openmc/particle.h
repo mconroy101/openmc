@@ -73,6 +73,8 @@ public:
   void event_collide();
   void event_revive_from_secondary(const SourceSite& site);
   void event_check_limit_and_revive();
+  void record_photon_collision_energy();
+  void event_revive_from_secondary();
   void event_death();
 
   //! pulse-height recording

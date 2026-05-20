@@ -199,7 +199,6 @@ void photon_track_record(Particle& particle)
   site.event_mt = particle.event_mt();
   site.cell_id = cell_id;
   site.parent_id = particle.id();
-  // write_message(1, "  photon energy: {}", site.E);
   simulation::photon_track_bank.thread_safe_append(site);
 }
 

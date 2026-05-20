@@ -532,7 +532,6 @@ void finalize_batch()
     collision_track_flush_bank();
   }
   // Write collision track file if requested
-  write_message(1, "  Checking whether to save photon track bank...");
   if (settings::photon_track) {
     photon_track_flush_bank();
   }
@@ -871,17 +870,6 @@ void free_memory_simulation()
   simulation::entropy.clear();
 }
 
-static void record_photon_collision_energy(Particle& p, double& E_dep)
-{
-  double E_new = p.pht_storage()[0] - E_dep;
-  if (E_new == 0.0)
-    return;
-  double orig_E_last = p.E_last();
-  p.E_last() = E_new;
-  photon_track_record(p);
-  p.E_last() = orig_E_last;
-  E_dep = p.pht_storage()[0];
-}
 
 void transport_history_based_single_particle(Particle& p)
 {
@@ -902,16 +890,8 @@ void transport_history_based_single_particle(Particle& p)
     }
     p.event_check_limit_and_revive();
     p.event_revive_from_secondary();
-    
-    // Add new photon energy from pht into collision tracker
-    if (p.type().is_photon()) {
-      record_photon_collision_energy(p, E_dep);
-    }
-  // write_message(1, "  Current PHT: {}", p.pht_storage()[0]);
+ 
   }
-  // Write photon file now, with "fake" particle info
-  record_photon_collision_energy(p, E_dep);
-  // write_message(1, "  The {} died. RIP.", p.type().str());
   p.event_death();
 }
 

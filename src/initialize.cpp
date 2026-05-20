@@ -161,7 +161,7 @@ void initialize_mpi(MPI_Comm intracomm)
 
   // Create bank datatype
   SourceSite b;
-  MPI_Aint disp[14];
+  MPI_Aint disp[15];
   MPI_Get_address(&b.r, &disp[0]);
   MPI_Get_address(&b.u, &disp[1]);
   MPI_Get_address(&b.E, &disp[2]);
@@ -177,6 +177,8 @@ void initialize_mpi(MPI_Comm intracomm)
   MPI_Get_address(&b.wgt_ww_born, &disp[12]);
   MPI_Get_address(&b.n_split, &disp[13]);
   for (int i = 13; i >= 0; --i) {
+  MPI__Get_address(&b.parent_type, &disp[11]);
+  for (int i = 11; i >= 0; --i) {
     disp[i] -= disp[0];
   }
 
