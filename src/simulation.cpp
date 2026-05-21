@@ -873,10 +873,7 @@ void free_memory_simulation()
 
 void transport_history_based_single_particle(Particle& p)
 {
-  double E_dep = 0.0;
   while (p.alive()) {
-    // if (p.type().is_photon())
-    // write_message(1, "Beginning loop for {} {} with {} eV", p.type().str(), p.id(), p.E());
     p.event_calculate_xs();
     if (p.alive()) {
       p.event_advance();
@@ -889,9 +886,17 @@ void transport_history_based_single_particle(Particle& p)
       }
     }
     p.event_check_limit_and_revive();
+    // write_message(1, "    Current bank:");
+    // for (const auto& site : p.secondary_bank()) {
+    //   write_message(1, "      Type: {}, Energy: {} eV, Weight: {}", site.particle.str(), site.E, site.wgt);
+    // }
+    
     p.event_revive_from_secondary();
  
   }
+  // write_message(1, "\nPHOTON ORIGIN IN CELL {} ({}, {}, {})", p.photon_origin_cell(), 
+  //     p.photon_origin_r()[0], p.photon_origin_r()[1], p.photon_origin_r()[2]);
+  //     write_message(1, "PHT: {} eV", p.pht_storage()[0]);
   p.event_death();
 }
 

@@ -84,6 +84,7 @@ void collision(Particle& p)
 
   // Display information about collision
   if (settings::verbosity >= 10 || p.trace()) {
+    // write_message(1, "    Collision type {} in cell index {}", p.event_mt(), p.lowest_coord().cell());
     std::string msg;
     if (p.event() == TallyEvent::KILL) {
       msg = fmt::format("    Killed. Energy = {} eV.", p.E());
@@ -140,6 +141,7 @@ void sample_neutron_reaction(Particle& p)
 
   // Create secondary photons
   if (settings::photon_transport) {
+    // write_message(1, "SAMPLE SECONDARY PHOTONS");
     sample_secondary_photons(p, i_nuclide);
   }
 

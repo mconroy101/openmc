@@ -203,6 +203,7 @@ void Particle::from_source(const SourceSite* src)
 
 void Particle::event_calculate_xs()
 {
+  // write_message(1, "  Running event_calculate_xs() for a {} in cell {}", type().str(), lowest_coord().cell());
   // Set the random number stream
   stream() = STREAM_TRACKING;
 
@@ -231,12 +232,22 @@ void Particle::event_calculate_xs()
     // Set birth cell attribute
     if (cell_born() == C_NONE)
       cell_born() = lowest_coord().cell();
+    
 
     // Initialize last cells from current cell
     for (int j = 0; j < n_coord(); ++j) {
       cell_last(j) = coord(j).cell();
     }
     n_coord_last() = n_coord();
+  }
+  // Set variables for first photon if this is the case
+  if (!first_photon() &&  type().is_photon()) { // 
+    first_photon() = true;
+    photon_origin_r() = r();
+    // write_message(1, "    This was the first photon which appeared at x = {}", photon_origin_r()[0]);
+    int current_cell = model::cells[lowest_coord().cell()]->id_;
+    // write_message(1, "    This photon originated in cell {}", current_cell);
+    photon_origin_cell() = current_cell;
   }
 
   // Write particle track.
@@ -392,7 +403,8 @@ void Particle::event_cross_surface()
 
 void Particle::event_collide()
 {
-
+  // int current_cell_id = model::cells[lowest_coord().cell()]->id_;
+  // write_message(1, "    Checking for collision in cell {}", current_cell_id);
   // Score collision estimate of keff
   if (settings::run_mode == RunMode::EIGENVALUE && type().is_neutron()) {
     keff_tally_collision() += wgt() * macro_xs().nu_fission / macro_xs().total;
@@ -681,6 +693,7 @@ void Particle::record_photon_collision_energy()
     return;
 
   double E_new = E_last() - E() - gamma_second_E();
+  // write_message(1, "  Deposited {} eV", E_new);
   double orig_E_last = E_last();
   E_last() = E_new;
   photon_track_record(*this);

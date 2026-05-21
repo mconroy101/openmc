@@ -537,7 +537,12 @@ private:
   double gamma_second_E_ {0.0};
   double wgt_bank_ {0.0};
   int n_delayed_bank_[MAX_DELAYED_GROUPS];
+
+  // New variables MC
   ParticleType parent_type_;
+  Position photon_origin_r_;
+  int photon_origin_cell_ {-1};
+  bool first_photon_ {false};
 
   int cell_born_ {-1};
 
@@ -677,6 +682,12 @@ public:
   const int& delayed_group() const { return delayed_group_; }
   const int& parent_nuclide() const { return parent_nuclide_; }
   int& parent_nuclide() { return parent_nuclide_; } // Parent nuclide
+
+  // Origin of first photon
+  Position& photon_origin_r() { return photon_origin_r_; }
+  const Position& photon_origin_r() const { return photon_origin_r_; }
+  int& photon_origin_cell() { return photon_origin_cell_; }
+  bool& first_photon() { return first_photon_; }
 
   // Post-collision data
   double& bank_second_E()
