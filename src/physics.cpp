@@ -466,6 +466,7 @@ void sample_photon_reaction(Particle& p)
     p.event_mt() = PAIR_PROD;
     p.wgt() = 0.0;
     p.E() = 0.0;
+    p.gamma_second_E() += 2 * MASS_ELECTRON_EV;
   }
 }
 
@@ -518,7 +519,6 @@ int sample_nuclide(Particle& p)
   // Get pointers to nuclide/density arrays
   const auto& mat {model::materials[p.material()]};
   int n = mat->nuclide_.size();
-
   double prob = 0.0;
   for (int i = 0; i < n; ++i) {
     // Get atom density
@@ -527,8 +527,20 @@ int sample_nuclide(Particle& p)
 
     // Increment probability to compare to cutoff
     prob += atom_density * p.neutron_xs(i_nuclide).total;
-    if (prob >= cutoff)
+    if (prob >= cutoff) {
+      // // FIX: Look up the nuclide name using the global data::nuclides vector
+      // std::string nuc_name = data::nuclides[i_nuclide]->name_;
+      
+      // // FIX: Get material ID or name safely
+      // std::string mat_identifier = mat->name_.empty() ? 
+      //                              std::to_string(mat->id_) : mat->name_;
+
+      // // Calculate mass in AMU (awr_ is relative to neutron mass)
+      // double nuc_mass = data::nuclides[i_nuclide]->awr_ * 1.00866491566;
+
+      // write_message(1, "    Sampled {} from Material {}. Mass = {}", nuc_name, mat_identifier, nuc_mass);
       return i_nuclide;
+    }  
   }
 
   // If we reach here, no nuclide was sampled

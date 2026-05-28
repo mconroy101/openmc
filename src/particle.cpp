@@ -404,7 +404,7 @@ void Particle::event_cross_surface()
 void Particle::event_collide()
 {
   // int current_cell_id = model::cells[lowest_coord().cell()]->id_;
-  // write_message(1, "    Checking for collision in cell {}", current_cell_id);
+  // write_message(1, "{} with {} in cell {}", type().str(), E(), current_cell_id);
   // Score collision estimate of keff
   if (settings::run_mode == RunMode::EIGENVALUE && type().is_neutron()) {
     keff_tally_collision() += wgt() * macro_xs().nu_fission / macro_xs().total;
@@ -446,12 +446,15 @@ void Particle::event_collide()
   
   // Iterating using range based for loop
   // Add to photon track
-  bool correct_parent = (parent_type().is_photon() || parent_type().is_neutron());
+  // write_message(1, "    Parent type: {}", parent_type().str());
+  bool correct_parent = (parent_type().is_photon() || parent_type().is_neutron() || parent_type() == ParticleType::positron());  // (parent_type() != ParticleType::electron()) ;
   if (settings::photon_track && type().is_photon() && correct_parent) {
+    // write_message(1, "  OK to record photon collision energy...");
     record_photon_collision_energy();
   }
   
   if (!model::active_pulse_height_tallies.empty() && type().is_photon()) {
+    // write_message(1, "  OK to record pulse-height tally...");
     pht_collision_energy();
   }
 
@@ -542,12 +545,12 @@ void Particle::event_revive_from_secondary()
     n_event() = 0;
     bank_second_E() = 0.0;
     gamma_second_E() = 0.0;
-
+    // write_message(1, "  Revived a {} with {} eV", type().str(), E());
   // Subtract secondary particle energy from interim pulse-height results.
   // In shared secondary mode, this subtraction was already done on the parent
   // particle during create_secondary(), so skip it here.
   if (!settings::use_shared_secondary_bank &&
-      !model::active_pulse_height_tallies.empty() && this->type().is_photon()) {
+      !model::active_pulse_height_tallies.empty() && this->type().is_photon() && !parent_type().is_neutron()) {
     // Since the birth cell of the particle has not been set we
     // have to determine it before the energy of the secondary particle can be
     // removed from the pulse-height of this cell.
@@ -659,6 +662,7 @@ void Particle::pht_collision_energy()
     if (E() < settings::energy_cutoff[photon]) {
       pht_storage()[index] += E();
     }
+    // write_message(1, "    PHT: {} eV", pht_storage()[index]);
   }
 }
 
@@ -693,7 +697,7 @@ void Particle::record_photon_collision_energy()
     return;
 
   double E_new = E_last() - E() - gamma_second_E();
-  // write_message(1, "  Deposited {} eV", E_new);
+  // write_message(1, "    Photon collision energy: {} eV", E_new);
   double orig_E_last = E_last();
   E_last() = E_new;
   photon_track_record(*this);
