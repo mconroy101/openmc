@@ -426,10 +426,10 @@ void Particle::event_collide()
     collision_mg(*this);
   }
 
-  // // Collision track feature to recording particle interaction
-  // if (settings::collision_track) {
-  //   collision_track_record(*this);
-  // }
+  // Collision track feature to recording particle interaction
+  if (settings::collision_track) {
+    collision_track_record(*this);
+  }
 
   // Score collision estimator tallies -- this is done after a collision
   // has occurred rather than before because we need information on the
@@ -519,33 +519,7 @@ void Particle::event_revive_from_secondary(const SourceSite& site)
     n_tracks()++;
   }
   bank_second_E() = 0.0;
-void Particle::event_revive_from_secondary()
-{
-  // If particle has too many events, display warning and kill it
-  ++n_event();
-  if (n_event() == settings::max_particle_events) {
-    warning("Particle " + std::to_string(id()) +
-            " underwent maximum number of events.");
-    wgt() = 0.0;
-  }
 
-  // Check for secondary particles if this particle is dead
-  if (!alive()) {
-    // Write final position for this particle
-    if (write_track()) {
-      write_particle_track(*this);
-    }
-    // write_message(1, "The {} has died. RIP.", this->type().str());
-    // If no secondary particles, break out of event loop
-    if (secondary_bank().empty())
-      return;
-    
-    from_source(&secondary_bank().back());
-    secondary_bank().pop_back();
-    n_event() = 0;
-    bank_second_E() = 0.0;
-    gamma_second_E() = 0.0;
-    // write_message(1, "  Revived a {} with {} eV", type().str(), E());
   // Subtract secondary particle energy from interim pulse-height results.
   // In shared secondary mode, this subtraction was already done on the parent
   // particle during create_secondary(), so skip it here.
@@ -595,6 +569,10 @@ void Particle::event_check_limit_and_revive()
     SourceSite& site = local_secondary_bank().back();
     event_revive_from_secondary(site);
     local_secondary_bank().pop_back();
+    n_event() = 0;
+    bank_second_E() = 0.0;
+    gamma_second_E() = 0.0;
+    // write_message(1, "  Revived a {} with {} eV", type().str(), E());
   }
 }
 

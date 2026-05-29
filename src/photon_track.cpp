@@ -148,7 +148,7 @@ void photon_track_reserve_bank()
 void photon_track_flush_bank()
 {
   const auto& cfg = settings::photon_track_config;
-  if (simulation::ct_current_file > cfg.max_files)
+  if (simulation::pt_current_file > cfg.max_files)
     return;
 
   bool last_batch = (simulation::current_batch == settings::n_batches);
@@ -165,9 +165,9 @@ void photon_track_flush_bank()
 
   std::string ext = "h5";
   auto filename = fmt::format("{}photon_track.{}.{}", settings::path_output,
-    simulation::ct_current_file, ext);
+    simulation::pt_current_file, ext);
 
-  if (cfg.max_files == 1 || (simulation::ct_current_file == 1 && last_batch)) {
+  if (cfg.max_files == 1 || (simulation::pt_current_file == 1 && last_batch)) {
     filename = settings::path_output + "photon_track." + ext;
   }
   write_message("Creating {}...", filename, 4);
@@ -180,7 +180,7 @@ void photon_track_flush_bank()
   if (!last_batch && cfg.max_files >= 1) {
     photon_track_reserve_bank();
   }
-  ++simulation::ct_current_file;
+  ++simulation::pt_current_file;
 }
 
 void photon_track_record(Particle& particle)

@@ -1,4 +1,4 @@
-git rebase develop#include "openmc/simulation.h"
+#include "openmc/simulation.h"
 
 #include "openmc/bank.h"
 #include "openmc/capi.h"
@@ -120,6 +120,7 @@ int openmc_simulation_init()
   // will potentially populate k_generation and entropy)
   simulation::current_batch = 0;
   simulation::ct_current_file = 1;
+  simulation::pt_current_file = 1;
   simulation::ssw_current_file = 1;
   simulation::k_generation.clear();
   simulation::entropy.clear();
@@ -323,6 +324,7 @@ namespace openmc {
 namespace simulation {
 
 int ct_current_file;
+int pt_current_file;
 int current_batch;
 int current_gen;
 bool initialized {false};
@@ -893,7 +895,6 @@ void transport_history_based_single_particle(Particle& p)
     //   write_message(1, "      Type: {}, Energy: {} eV, Weight: {}", site.particle.str(), site.E, site.wgt);
     // }
     
-    p.event_revive_from_secondary();
  
   }
   // write_message(1, "\nPHOTON ORIGIN IN CELL {} ({}, {}, {})", p.photon_origin_cell(), 

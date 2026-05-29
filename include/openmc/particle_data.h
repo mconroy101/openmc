@@ -55,8 +55,6 @@ struct SourceSite {
   double wgt_born {1.0};
   double wgt_ww_born {-1.0};
   int64_t n_split {0};
-  int64_t parent_id;
-  int64_t progeny_id;
   ParticleType parent_type;
 };
 
