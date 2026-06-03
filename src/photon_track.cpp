@@ -49,6 +49,7 @@ namespace {
 hid_t h5_photon_track_banktype()
 {
   hid_t banktype = H5Tcreate(H5T_COMPOUND, sizeof(PhotonTrackSite));
+  H5Tinsert(banktype, "batch_no", HOFFSET(PhotonTrackSite, batch_no),H5T_NATIVE_INT64);
   H5Tinsert(banktype, "parent_id", HOFFSET(PhotonTrackSite, parent_id),H5T_NATIVE_INT64);
   H5Tinsert(banktype, "x", HOFFSET(PhotonTrackSite, r.x), H5T_NATIVE_DOUBLE);
   H5Tinsert(banktype, "y", HOFFSET(PhotonTrackSite, r.y), H5T_NATIVE_DOUBLE);
@@ -199,6 +200,7 @@ void photon_track_record(Particle& particle)
   site.event_mt = particle.event_mt();
   site.cell_id = cell_id;
   site.parent_id = particle.id();
+  site.batch_no = simulation::current_batch;
   simulation::photon_track_bank.thread_safe_append(site);
 }
 

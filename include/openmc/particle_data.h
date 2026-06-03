@@ -85,6 +85,7 @@ struct PhotonTrackSite {
   int event_mt {0};
   int cell_id {0};
   int64_t parent_id;
+  int64_t batch_no;
 };
 
 //! State of a particle used for particle track files
