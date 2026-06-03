@@ -443,7 +443,6 @@ void Particle::event_collide()
       score_analog_tally_mg(*this);
     }
   }
-  
   // Iterating using range based for loop
   // Add to photon track
   // write_message(1, "    Parent type: {}", parent_type().str());
@@ -667,15 +666,13 @@ void Particle::pht_secondary_particles()
 // New function to track photon collision
 void Particle::record_photon_collision_energy()
 {
-  // Need to check whether we are in the correct cell, based on pulse-height tally for now
-  // Only record if we are in a cell included in the pulse-height tally
-  auto it = std::find(model::pulse_height_cells.begin(),
-    model::pulse_height_cells.end(), lowest_coord().cell());
-  if (it == model::pulse_height_cells.end())
+  // Need to check whether we are in the correct cell, based on config
+  int cell_index = lowest_coord().cell();
+  auto it = std::find(settings::photon_track_config.cell_ids.begin(),
+    settings::photon_track_config.cell_ids.end(), model::cells[cell_index]->id_);
+  if (it == settings::photon_track_config.cell_ids.end())
     return;
-
   double E_new = E_last() - E() - gamma_second_E();
-  // write_message(1, "    Photon collision energy: {} eV", E_new);
   double orig_E_last = E_last();
   E_last() = E_new;
   photon_track_record(*this);

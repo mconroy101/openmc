@@ -190,7 +190,6 @@ void photon_track_record(Particle& particle)
   int cell_id = 0;
   if (cell_index != C_NONE) {
     cell_id = model::cells[cell_index]->id_;
-
   }
   double delta_E = particle.E_last();
   PhotonTrackSite site;

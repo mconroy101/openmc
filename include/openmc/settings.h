@@ -56,8 +56,7 @@ struct CollisionTrackConfig {
 struct PhotonTrackConfig {
   std::unordered_set<int>
     cell_ids; //!< Cell ids where collisions will be written
-  int64_t max_collisions {
-    10000000};               //!< Maximum events recorded per collision track file
+  int64_t max_collisions {1000};  //!< Maximum events recorded per collision track file
   int64_t max_files {1}; //!< Maximum number of collision track files
 };
 

@@ -453,6 +453,9 @@ class Settings:
         # Collision track feature
         self._collision_track = {}
 
+        # Photon track feature
+        self._photon_track = {}
+
         # Output options
         self._statepoint = {}
         self._sourcepoint = {}
@@ -1021,6 +1024,35 @@ class Settings:
                 cv.check_type('write to an MCPL-format file', value, bool)
 
         self._collision_track = collision_track
+
+    @property
+    def photon_track(self) -> dict:
+        return self._photon_track
+
+    @photon_track.setter
+    def photon_track(self, photon_track: dict):
+        cv.check_type('Photon tracking options', photon_track, Mapping)
+        for key, value in photon_track.items():
+            cv.check_value('photon_track key', key,
+                           ('cell_ids', 'max_collisions', 'max_photon_track_files'))
+            if key == 'cell_ids':
+                cv.check_type('cell ids for photon tracking data banking', value,
+                              Iterable, Integral)
+                for cell_id in value:
+                    cv.check_greater_than('cell id for photon tracking data banking',
+                                          cell_id, 0)
+            elif key == 'max_collisions':
+                cv.check_type('maximum collisions banks per file',
+                              value, Integral)
+                cv.check_greater_than('maximum collisions banks in photon tracking',
+                                      value, 0)
+            elif key == 'max_collision_track_files':
+                cv.check_type('maximum collisions banks',
+                              value, Integral)
+                cv.check_greater_than('maximum number of photon_track files ',
+                                      value, 0)
+
+        self._photon_track = photon_track
 
     @property
     def no_reduce(self) -> bool:
@@ -1699,6 +1731,22 @@ class Settings:
             if 'mcpl' in self._collision_track:
                 subelement = ET.SubElement(element, "mcpl")
                 subelement.text = str(self._collision_track['mcpl']).lower()
+
+    def _create_photon_track_subelement(self, root):
+        if self._photon_track:
+            element = ET.SubElement(root, "photon_track")
+            if 'cell_ids' in self._photon_track:
+                subelement = ET.SubElement(element, "cell_ids")
+                subelement.text = ' '.join(
+                    str(x) for x in self._photon_track['cell_ids'])
+            if 'max_collisions' in self._photon_track:
+                subelement = ET.SubElement(element, "max_collisions")
+                subelement.text = str(self._photon_track['max_collisions'])
+            if 'max_collision_track_files' in self._photon_track:
+                subelement = ET.SubElement(
+                    element, "max_collision_track_files")
+                subelement.text = str(
+                    self._photon_track['max_photon_track_files'])
 
     def _create_confidence_intervals(self, root):
         if self._confidence_intervals is not None:
@@ -2606,6 +2654,7 @@ class Settings:
         self._create_surf_source_read_subelement(element)
         self._create_surf_source_write_subelement(element)
         self._create_collision_track_subelement(element)
+        self._create_photon_track_subelement(element)
         self._create_confidence_intervals(element)
         self._create_electron_treatment_subelement(element)
         self._create_atomic_relaxation_subelement(element)

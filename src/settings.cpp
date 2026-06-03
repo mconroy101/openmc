@@ -49,7 +49,7 @@ namespace settings {
 bool assume_separate {false};
 bool check_overlaps {false};
 bool collision_track {false};
-bool photon_track {true};
+bool photon_track {false};
 bool cmfd_run {false};
 bool confidence_intervals {false};
 bool create_delayed_neutrons {true};
@@ -1052,6 +1052,37 @@ void read_settings_xml(pugi::xml_node root)
     }
     if (check_for_node(node_ct, "mcpl")) {
       collision_track_config.mcpl_write = get_node_value_bool(node_ct, "mcpl");
+    }
+  }
+
+  // Check if user has specified to record photon tracks
+  if (check_for_node(root, "photon_track")) {
+    // Enable photon tracking
+    settings::photon_track = true;
+    // Get photon track node
+    xml_node node_ct = root.child("photon_track");
+    photon_track_config = PhotonTrackConfig {};
+
+    // Determine cell ids in which to track photons
+    if (check_for_node(node_ct, "cell_ids")) {
+      auto temp = get_node_array<int>(node_ct, "cell_ids");
+      for (const auto& b : temp) {
+        photon_track_config.cell_ids.insert(b);
+      }
+    }
+    // Get maximum number of particles to be banked per collision
+    if (check_for_node(node_ct, "max_collisions")) {
+      photon_track_config.max_collisions =
+        std::stoll(get_node_value(node_ct, "max_collisions"));
+    } else {
+      warning("A maximum number of collisions needs to be specified. "
+              "By default the code sets 'max_collisions' parameter equals to "
+              "1000.");
+    }
+    // Get maximum number of photon_track files to be created
+    if (check_for_node(node_ct, "max_photon_track_files")) {
+      photon_track_config.max_files =
+        std::stoll(get_node_value(node_ct, "max_photon_track_files"));
     }
   }
 
