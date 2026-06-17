@@ -81,7 +81,7 @@ void collision(Particle& p)
   if (type != C_NONE && p.E() < settings::energy_cutoff[type]) {
     p.wgt() = 0.0;
   }
-
+  // write_message(1, "Collision type {} in cell index {}", p.event_mt(), p.lowest_coord().cell());
   // Display information about collision
   if (settings::verbosity >= 10 || p.trace()) {
     // write_message(1, "    Collision type {} in cell index {}", p.event_mt(), p.lowest_coord().cell());
@@ -1205,6 +1205,13 @@ void sample_secondary_photons(Particle& p, int i_nuclide)
   double photon_wgt = p.wgt();
   int y = 1;
 
+  // Debugging message
+  if (settings::verbosity >= 10 || p.trace()) {
+    write_message(1, "For an incident neutron of E = {} eV:", p.E());
+    write_message(1, "  XS photon production: {}", p.neutron_xs(i_nuclide).photon_prod);
+    write_message(1, "  XS total: {}", p.neutron_xs(i_nuclide).total);
+    write_message(1, "    Photon yield: {}", y_t);
+  }
   if (settings::use_decay_photons) {
     // For decay photons, sample a single photon and modify the weight
     if (y_t <= 0.0)
@@ -1217,7 +1224,7 @@ void sample_secondary_photons(Particle& p, int i_nuclide)
     if (prn(p.current_seed()) <= y_t - y)
       ++y;
   }
-
+  // write_message(1, "      Sampling {} secondary photons", y);
   // Sample each secondary photon
   for (int i = 0; i < y; ++i) {
     // Sample the reaction and product

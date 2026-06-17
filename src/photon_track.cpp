@@ -54,11 +54,14 @@ hid_t h5_photon_track_banktype()
   H5Tinsert(banktype, "x", HOFFSET(PhotonTrackSite, r.x), H5T_NATIVE_DOUBLE);
   H5Tinsert(banktype, "y", HOFFSET(PhotonTrackSite, r.y), H5T_NATIVE_DOUBLE);
   H5Tinsert(banktype, "z", HOFFSET(PhotonTrackSite, r.z), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "cell_id", HOFFSET(PhotonTrackSite, cell_id), H5T_NATIVE_INT);
   H5Tinsert(banktype, "time", HOFFSET(PhotonTrackSite, time), H5T_NATIVE_DOUBLE);
   H5Tinsert(banktype, "dE", HOFFSET(PhotonTrackSite, dE), H5T_NATIVE_DOUBLE);
   H5Tinsert(banktype, "event_mt", HOFFSET(PhotonTrackSite, event_mt), H5T_NATIVE_INT);
-  H5Tinsert(banktype, "cell_id", HOFFSET(PhotonTrackSite, cell_id), H5T_NATIVE_INT);
-
+  H5Tinsert(banktype, "x_origin", HOFFSET(PhotonTrackSite, origin_r.x), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "y_origin", HOFFSET(PhotonTrackSite, origin_r.y), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "z_origin", HOFFSET(PhotonTrackSite, origin_r.z), H5T_NATIVE_DOUBLE);
+  H5Tinsert(banktype, "origin_cell_id", HOFFSET(PhotonTrackSite, origin_cell_id), H5T_NATIVE_INT);
   return banktype;
 }
 
@@ -200,6 +203,10 @@ void photon_track_record(Particle& particle)
   site.cell_id = cell_id;
   site.parent_id = particle.id();
   site.batch_no = simulation::current_batch;
+
+  // Add photon origin information
+  site.origin_cell_id = particle.photon_origin_cell();
+  site.origin_r = particle.photon_origin_r();
   simulation::photon_track_bank.thread_safe_append(site);
 }
 

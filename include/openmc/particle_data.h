@@ -79,14 +79,17 @@ struct CollisionTrackSite {
 
 // Add struct to store photon collision data
 struct PhotonTrackSite {
-  Position r;
-  double dE;
-  double time {0.0};
-  int event_mt {0};
-  int cell_id {0};
-  int64_t parent_id;
-  int64_t batch_no;
+  Position r;           // Interaction position
+  double dE;            // Deposited energy
+  double time {0.0};    // Time of interaction
+  int event_mt {0};     // Reaction MT number
+  int cell_id {0};      // ID of cell interaction took place in
+  int64_t parent_id;    // ID of parent particle
+  int64_t batch_no;     // Batch number
+  int origin_cell_id {0}; // Cell photon originated from
+  Position origin_r;    // Position of photon origin
 };
+// NOTE: Photon origin is of the FIRST photon to be produced for a single event
 
 //! State of a particle used for particle track files
 struct TrackState {
