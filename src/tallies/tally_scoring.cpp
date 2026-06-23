@@ -2773,7 +2773,7 @@ void score_pulse_height_tally(Particle& p, const vector<int>& tallies)
              ++score_index) {
 #pragma omp atomic
           tally.results_(filter_index, score_index, TallyResult::VALUE) +=
-            filter_weight;
+            filter_weight * p.wgt_born(); // EDIT MC: 23/06/26 (auto-normalisation)
         }
       }
 
