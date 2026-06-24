@@ -19,8 +19,6 @@ from .utility_funcs import input_path
 from .volume import VolumeCalculation
 from .weight_windows import WeightWindows, WeightWindowGenerator, WeightWindowsList
 
-# Need ParticleType for validation
-from .particle_type import ParticleType
 
 class RunMode(Enum):
     EIGENVALUE = 'eigenvalue'
@@ -65,8 +63,6 @@ class Settings:
         :material_ids: List of material IDs to define materials in which collisions should be banked. (list of int)
         :nuclides: List of nuclides to define nuclides in which collisions should be banked.
                     (ex: ["I135m", "U233"] ). (list of str)
-        :particle_types: Type(s) of particle to track collisions of. 
-                    (ex: ["neutron"] ). (list of str)
         :reactions: List of reaction to define specific reactions that should be banked
                     (ex: ["(n,fission)", 2, "(n,2n)"] ). (list of str or int)
         :deposited_E_threshold: Number to define the minimum deposited energy during
@@ -951,7 +947,7 @@ class Settings:
         cv.check_type('Collision tracking options', collision_track, Mapping)
         for key, value in collision_track.items():
             cv.check_value('collision_track key', key,
-                           ('cell_ids', 'reactions', 'universe_ids', 'material_ids', 'nuclides', 'particle_types',
+                           ('cell_ids', 'reactions', 'universe_ids', 'material_ids', 'nuclides',
                             'deposited_E_threshold', 'max_collisions', 'max_collision_track_files', 'mcpl'))
             if key == 'cell_ids':
                 cv.check_type('cell ids for collision tracking data banking', value,
@@ -995,16 +991,6 @@ class Settings:
                         openmc.data.zam(nuclide)
                     except ValueError:
                         warnings.warn(f"Nuclide {nuclide} is not valid")
-            # Addition of particle type
-            elif key == 'particle_types':
-                cv.check_type('particle types to track', value,
-                              Iterable, str)
-                for p_type in value:
-                    # Check if this is a valid particle type
-                    try:
-                        ParticleType(p_type)
-                    except ValueError:
-                        warnings.warn(f"Particle {p_type} is not valid")
             elif key == 'deposited_E_threshold':
                 cv.check_type('Deposited Energy Threshold for collision tracking data banking',
                               value, Real)
@@ -1711,11 +1697,6 @@ class Settings:
                 subelement = ET.SubElement(element, "nuclides")
                 subelement.text = ' '.join(
                     str(x) for x in self._collision_track['nuclides'])
-            # Edit to include particle type in collision track
-            if 'particle_types' in self._collision_track:
-                subelement = ET.SubElement(element, "particle_types")
-                subelement.text = ' '.join(
-                    str(x) for x in self._collision_track['particle_types'])
             if 'deposited_E_threshold' in self._collision_track:
                 subelement = ET.SubElement(element, "deposited_E_threshold")
                 subelement.text = str(

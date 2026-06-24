@@ -203,7 +203,6 @@ void Particle::from_source(const SourceSite* src)
 
 void Particle::event_calculate_xs()
 {
-  // write_message(1, "  Running event_calculate_xs() for a {} in cell {}", type().str(), lowest_coord().cell());
   // Set the random number stream
   stream() = STREAM_TRACKING;
 
@@ -232,7 +231,6 @@ void Particle::event_calculate_xs()
     // Set birth cell attribute
     if (cell_born() == C_NONE)
       cell_born() = lowest_coord().cell();
-    
 
     // Initialize last cells from current cell
     for (int j = 0; j < n_coord(); ++j) {
@@ -244,9 +242,7 @@ void Particle::event_calculate_xs()
   if (!first_photon() &&  type().is_photon()) { // 
     first_photon() = true;
     photon_origin_r() = r();
-    // write_message(1, "    This was the first photon which appeared at x = {}", photon_origin_r()[0]);
     int current_cell = model::cells[lowest_coord().cell()]->id_;
-    // write_message(1, "    This photon originated in cell {}", current_cell);
     photon_origin_cell() = current_cell;
   }
 
@@ -403,8 +399,7 @@ void Particle::event_cross_surface()
 
 void Particle::event_collide()
 {
-  // int current_cell_id = model::cells[lowest_coord().cell()]->id_;
-  // write_message(1, "{} with {} in cell {}", type().str(), E(), current_cell_id);
+
   // Score collision estimate of keff
   if (settings::run_mode == RunMode::EIGENVALUE && type().is_neutron()) {
     keff_tally_collision() += wgt() * macro_xs().nu_fission / macro_xs().total;
@@ -445,15 +440,12 @@ void Particle::event_collide()
   }
   // Iterating using range based for loop
   // Add to photon track
-  // write_message(1, "    Parent type: {}", parent_type().str());
   bool correct_parent = (parent_type().is_photon() || parent_type().is_neutron() || parent_type() == ParticleType::positron());  // (parent_type() != ParticleType::electron()) ;
   if (settings::photon_track && type().is_photon() && correct_parent) {
-    // write_message(1, "  OK to record photon collision energy...");
     record_photon_collision_energy();
   }
   
   if (!model::active_pulse_height_tallies.empty() && type().is_photon()) {
-    // write_message(1, "  OK to record pulse-height tally...");
     pht_collision_energy();
   }
 
@@ -523,7 +515,7 @@ void Particle::event_revive_from_secondary(const SourceSite& site)
   // In shared secondary mode, this subtraction was already done on the parent
   // particle during create_secondary(), so skip it here.
   if (!settings::use_shared_secondary_bank &&
-      !model::active_pulse_height_tallies.empty() && this->type().is_photon() && !parent_type().is_neutron()) {
+      !model::active_pulse_height_tallies.empty() && this->type().is_photon()) { // && !parent_type().is_neutron()) {
     // Since the birth cell of the particle has not been set we
     // have to determine it before the energy of the secondary particle can be
     // removed from the pulse-height of this cell.
@@ -568,7 +560,7 @@ void Particle::event_check_limit_and_revive()
     SourceSite& site = local_secondary_bank().back();
     event_revive_from_secondary(site);
     local_secondary_bank().pop_back();
-    n_event() = 0;
+    // n_event() = 0; ? Not sure whether to remove
     bank_second_E() = 0.0;
     gamma_second_E() = 0.0;
     // write_message(1, "  Revived a {} with {} eV", type().str(), E());
@@ -639,7 +631,6 @@ void Particle::pht_collision_energy()
     if (E() < settings::energy_cutoff[photon]) {
       pht_storage()[index] += E();
     }
-    // write_message(1, "    PHT: {} eV", pht_storage()[index]);
   }
 }
 
@@ -654,12 +645,6 @@ void Particle::pht_secondary_particles()
   if (it != model::pulse_height_cells.end()) {
     int index = std::distance(model::pulse_height_cells.begin(), it);
     pht_storage()[index] -= E();
-    // Record collision event here for photos. That way it gives the energy of the electron
-    // photon_track_record(*this);
-    // // Collision track feature to recording particle interaction
-  // if (settings::collision_track) {
-  //   collision_track_record(*this);
-  // }
   }
 }
 
@@ -683,7 +668,7 @@ void Particle::cross_surface(const Surface& surf)
 {
 
   if (settings::verbosity >= 10 || trace()) {
-    // write_message(1, "    Crossing surface {}", surf.id_);
+    write_message(1, "    Crossing surface {}", surf.id_);
   }
 
 // if we're crossing a CSG surface, make sure the DAG history is reset

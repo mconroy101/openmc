@@ -81,10 +81,9 @@ void collision(Particle& p)
   if (type != C_NONE && p.E() < settings::energy_cutoff[type]) {
     p.wgt() = 0.0;
   }
-  // write_message(1, "Collision type {} in cell index {}", p.event_mt(), p.lowest_coord().cell());
+
   // Display information about collision
   if (settings::verbosity >= 10 || p.trace()) {
-    // write_message(1, "    Collision type {} in cell index {}", p.event_mt(), p.lowest_coord().cell());
     std::string msg;
     if (p.event() == TallyEvent::KILL) {
       msg = fmt::format("    Killed. Energy = {} eV.", p.E());
@@ -141,7 +140,6 @@ void sample_neutron_reaction(Particle& p)
 
   // Create secondary photons
   if (settings::photon_transport) {
-    // write_message(1, "SAMPLE SECONDARY PHOTONS");
     sample_secondary_photons(p, i_nuclide);
   }
 
@@ -472,8 +470,8 @@ void sample_photon_reaction(Particle& p)
 
 void sample_electron_reaction(Particle& p)
 {
-  // EDIT MC: Define a nuclide for reaction at random from material
-  int i_element = sample_element(p);
+  // // EDIT MC: Define a nuclide for reaction at random from material
+  // int i_element = sample_element(p);
   
   // TODO: create reaction types
 
@@ -489,8 +487,8 @@ void sample_electron_reaction(Particle& p)
 
 void sample_positron_reaction(Particle& p)
 {
-  // EDIT MC: Define a nuclide for reaction at random from material
-  int i_element = sample_element(p);
+  // // EDIT MC: Define a nuclide for reaction at random from material
+  // int i_element = sample_element(p);
   
   // TODO: create reaction types
 
@@ -519,6 +517,7 @@ int sample_nuclide(Particle& p)
   // Get pointers to nuclide/density arrays
   const auto& mat {model::materials[p.material()]};
   int n = mat->nuclide_.size();
+
   double prob = 0.0;
   for (int i = 0; i < n; ++i) {
     // Get atom density
@@ -527,20 +526,8 @@ int sample_nuclide(Particle& p)
 
     // Increment probability to compare to cutoff
     prob += atom_density * p.neutron_xs(i_nuclide).total;
-    if (prob >= cutoff) {
-      // // FIX: Look up the nuclide name using the global data::nuclides vector
-      // std::string nuc_name = data::nuclides[i_nuclide]->name_;
-      
-      // // FIX: Get material ID or name safely
-      // std::string mat_identifier = mat->name_.empty() ? 
-      //                              std::to_string(mat->id_) : mat->name_;
-
-      // // Calculate mass in AMU (awr_ is relative to neutron mass)
-      // double nuc_mass = data::nuclides[i_nuclide]->awr_ * 1.00866491566;
-
-      // write_message(1, "    Sampled {} from Material {}. Mass = {}", nuc_name, mat_identifier, nuc_mass);
+    if (prob >= cutoff)
       return i_nuclide;
-    }  
   }
 
   // If we reach here, no nuclide was sampled
@@ -1224,7 +1211,7 @@ void sample_secondary_photons(Particle& p, int i_nuclide)
     if (prn(p.current_seed()) <= y_t - y)
       ++y;
   }
-  // write_message(1, "      Sampling {} secondary photons", y);
+
   // Sample each secondary photon
   for (int i = 0; i < y; ++i) {
     // Sample the reaction and product

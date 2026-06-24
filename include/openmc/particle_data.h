@@ -77,7 +77,7 @@ struct CollisionTrackSite {
   int64_t progeny_id;
 };
 
-// Add struct to store photon collision data
+// Struct to store photon collision data
 struct PhotonTrackSite {
   Position r;           // Interaction position
   double dE;            // Deposited energy
@@ -540,8 +540,8 @@ private:
   double wgt_bank_ {0.0};
   int n_delayed_bank_[MAX_DELAYED_GROUPS];
 
-  // New variables MC
   ParticleType parent_type_;
+  // Variables for photon tracking
   Position photon_origin_r_;
   int photon_origin_cell_ {-1};
   bool first_photon_ {false};
@@ -698,7 +698,6 @@ public:
   } // energy of last reaction secondaries
   const double& bank_second_E() const { return bank_second_E_; }
 
-  // Post-collision data
   double& gamma_second_E()
   {
     return gamma_second_E_;

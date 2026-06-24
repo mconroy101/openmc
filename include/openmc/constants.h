@@ -36,6 +36,7 @@ constexpr array<int, 2> VERSION_MGXS_LIBRARY {1, 0};
 constexpr array<int, 2> VERSION_PROPERTIES {1, 1};
 constexpr array<int, 2> VERSION_WEIGHT_WINDOWS {1, 0};
 constexpr array<int, 2> VERSION_COLLISION_TRACK {1, 2};
+constexpr array<int, 2> VERSION_PHOTON_TRACK {1, 2};
 
 // ============================================================================
 // ADJUSTABLE PARAMETERS

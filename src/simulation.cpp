@@ -383,7 +383,7 @@ void allocate_banks()
     collision_track_reserve_bank();
   }
   if (settings::photon_track) {
-    // Allocate collision track bank
+    // Allocate photon track bank
     photon_track_reserve_bank();
   }
 }
@@ -533,7 +533,7 @@ void finalize_batch()
   if (settings::collision_track) {
     collision_track_flush_bank();
   }
-  // Write collision track file if requested
+  // Write photon track file if requested
   if (settings::photon_track) {
     photon_track_flush_bank();
   }
@@ -872,10 +872,8 @@ void free_memory_simulation()
   simulation::entropy.clear();
 }
 
-
 void transport_history_based_single_particle(Particle& p)
 {
-  // write_message(1, "STARTING PARTICLE A NEW PARTICLE {}", p.id());
   while (p.alive()) {
     p.event_calculate_xs();
     if (p.alive()) {
@@ -889,18 +887,7 @@ void transport_history_based_single_particle(Particle& p)
       }
     }
     p.event_check_limit_and_revive();
-    // write_message(1, "    Current bank:");
-    // for (const auto& site : p.secondary_bank()) {
-    //   if (site.particle.is_photon())
-    //   write_message(1, "      Type: {}, Energy: {} eV, Weight: {}", site.particle.str(), site.E, site.wgt);
-    // }
-    
- 
   }
-  // write_message(1, "\nPHOTON ORIGIN IN CELL {} ({}, {}, {})", p.photon_origin_cell(), 
-  //     p.photon_origin_r()[0], p.photon_origin_r()[1], p.photon_origin_r()[2]);
-  // write_message(1, "PHT: {} eV", p.pht_storage()[0]);
-  // write_message(1, "Collisions: {} eV", p.total_E_dep());
   p.event_death();
 }
 
