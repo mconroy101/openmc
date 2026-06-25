@@ -2757,6 +2757,7 @@ void score_pulse_height_tally(Particle& p, const vector<int>& tallies)
       auto filter_iter = FilterBinIter(tally, p);
       auto end = FilterBinIter(tally, true, &p.filter_matches());
       if (filter_iter == end)
+        write_message(1, "No matches for any filter");
         continue;
 
       // Loop over filter bins.

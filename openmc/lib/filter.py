@@ -25,7 +25,7 @@ __all__ = [
     'ParentNuclideFilter', 'ParticleFilter', 'ParticleProductionFilter', 'PolarFilter',
     'ReactionFilter', 'SphericalHarmonicsFilter', 'SpatialLegendreFilter',
     'SurfaceFilter', 'TimeFilter', 'UniverseFilter', 'WeightFilter', 'ZernikeFilter',
-    'ZernikeRadialFilter', 'filters'
+    'ZernikeRadialFilter', 'PhotonOriginFilter', 'filters'
 ]
 
 # Tally functions
@@ -260,6 +260,8 @@ class CellbornFilter(Filter):
 class CellfromFilter(Filter):
     filter_type = 'cellfrom'
 
+class PhotonOriginFilter(Filter):
+    filter_type = 'photonorigin'
 
 class CellInstanceFilter(Filter):
     filter_type = 'cellinstance'
@@ -730,7 +732,8 @@ _FILTER_TYPE_MAP = {
     'universe': UniverseFilter,
     'weight': WeightFilter,
     'zernike': ZernikeFilter,
-    'zernikeradial': ZernikeRadialFilter
+    'zernikeradial': ZernikeRadialFilter,
+    'photonorigin': PhotonOriginFilter
 }
 
 

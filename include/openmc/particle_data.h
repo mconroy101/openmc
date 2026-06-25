@@ -689,6 +689,7 @@ public:
   Position& photon_origin_r() { return photon_origin_r_; }
   const Position& photon_origin_r() const { return photon_origin_r_; }
   int& photon_origin_cell() { return photon_origin_cell_; }
+  const int& photon_origin_cell() const { return photon_origin_cell_; }
   bool& first_photon() { return first_photon_; }
 
   // Post-collision data

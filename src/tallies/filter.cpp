@@ -30,6 +30,7 @@
 #include "openmc/tallies/filter_mu.h"
 #include "openmc/tallies/filter_musurface.h"
 #include "openmc/tallies/filter_parent_nuclide.h"
+#include "openmc/tallies/filter_photon_origin.h"
 #include "openmc/tallies/filter_particle.h"
 #include "openmc/tallies/filter_particle_production.h"
 #include "openmc/tallies/filter_polar.h"
@@ -170,6 +171,8 @@ Filter* Filter::create(const std::string& type, int32_t id)
     return Filter::create<ZernikeFilter>(id);
   } else if (type == "zernikeradial") {
     return Filter::create<ZernikeRadialFilter>(id);
+  } else if (type == "photonorigin") {
+    return Filter::create<PhotonOriginFilter>(id);
   } else {
     throw std::runtime_error {fmt::format("Unknown filter type: {}", type)};
   }

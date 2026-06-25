@@ -7,6 +7,10 @@ namespace openmc {
 void CellBornFilter::get_all_bins(
   const Particle& p, TallyEstimator estimator, FilterMatch& match) const
 {
+  write_message(1, "Particle birth cell: {}", p.cell_born());
+  for (const auto& entry : map_) {
+    write_message(1, "key: {}, value: {}", entry.first, entry.second);
+  }
   auto search = map_.find(p.cell_born());
   if (search != map_.end()) {
     match.bins_.push_back(search->second);

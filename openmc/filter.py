@@ -27,7 +27,8 @@ _FILTER_TYPES = (
     'delayedgroup', 'energyfunction', 'cellfrom', 'materialfrom', 'legendre',
     'spatiallegendre', 'sphericalharmonics', 'zernike', 'zernikeradial', 'particle',
     'particleproduction', 'cellinstance', 'collision', 'time', 'parentnuclide',
-    'weight', 'meshborn', 'meshsurface', 'meshmaterial', 'reaction',
+    'weight', 'meshborn', 'meshsurface', 'meshmaterial', 'reaction', 
+    'photonorigin', # NEW
 )
 
 _CURRENT_NAMES = (
@@ -596,6 +597,28 @@ def CellbornFilter(*args, **kwargs):
                   'removed in the future.', FutureWarning)
     return CellBornFilter(*args, **kwargs)
 
+class PhotonOriginFilter(WithIDFilter):
+    """Bins **pulse-height tally** events based on which cell the photon was born in.
+
+    Parameters
+    ----------
+    bins : openmc.Cell, Integral, or iterable thereof
+        The birth cells to tally. Either :class:`openmc.Cell` objects or their
+        integral ID numbers can be used.
+    filter_id : int
+        Unique identifier for the filter
+
+    Attributes
+    ----------
+    bins : Iterable of Integral
+        Cell IDs.
+    id : int
+        Unique identifier for the filter
+    num_bins : Integral
+        The number of filter bins
+
+    """
+    expected_type = Cell
 
 class CellInstanceFilter(Filter):
     """Bins tally events based on which cell instance a particle is in.

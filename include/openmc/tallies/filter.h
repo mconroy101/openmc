@@ -49,7 +49,8 @@ enum class FilterType {
   UNIVERSE,
   WEIGHT,
   ZERNIKE,
-  ZERNIKE_RADIAL
+  ZERNIKE_RADIAL,
+  PHOTON_ORIGIN
 };
 
 //==============================================================================
