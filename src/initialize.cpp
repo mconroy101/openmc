@@ -176,7 +176,7 @@ void initialize_mpi(MPI_Comm intracomm)
   MPI_Get_address(&b.wgt_born, &disp[11]);
   MPI_Get_address(&b.wgt_ww_born, &disp[12]);
   MPI_Get_address(&b.n_split, &disp[13]);
-  MPI__Get_address(&b.parent_type, &disp[14]);
+  MPI_Get_address(&b.parent_type, &disp[14]);
   for (int i = 14; i >= 0; --i) {
     disp[i] -= disp[0];
   }
