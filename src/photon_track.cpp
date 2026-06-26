@@ -205,7 +205,8 @@ void photon_track_record(Particle& particle)
   site.batch_no = simulation::current_batch;
 
   // Add photon origin information
-  site.origin_cell_id = particle.photon_origin_cell();
+  int origin_id = model::cells[particle.photon_origin_cell()]->id_;
+  site.origin_cell_id = origin_id;
   site.origin_r = particle.photon_origin_r();
   simulation::photon_track_bank.thread_safe_append(site);
 }

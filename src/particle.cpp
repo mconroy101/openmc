@@ -242,7 +242,7 @@ void Particle::event_calculate_xs()
   if (!first_photon() &&  type().is_photon()) { // 
     first_photon() = true;
     photon_origin_r() = r();
-    int current_cell = model::cells[lowest_coord().cell()]->id_;
+    int current_cell = lowest_coord().cell();
     photon_origin_cell() = current_cell;
   }
 

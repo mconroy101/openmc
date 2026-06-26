@@ -7,12 +7,6 @@ namespace openmc {
 void PhotonOriginFilter::get_all_bins(
   const Particle& p, TallyEstimator estimator, FilterMatch& match) const
 {
-  // CHECK HERE IF TALLY TYPE IS PULSE-HEIGHT, THEN DO SOME STUFF
-  write_message(1, "Tally is a {}", estimator);
-  write_message(1, "Particle origin: {}", p.photon_origin_cell());
-  for (const auto& entry : map_) {
-    write_message(1, "key: {}, value: {}", entry.first, entry.second);
-  }
   auto search = map_.find(p.photon_origin_cell()); // CURRENTLY THIS DOES NOT MATCH BECAUSE p.photon_origin_cell() STORES THE CELL ID, WHEREAS map_ STORES THE CELL INDICES
   if (search != map_.end()) {
     match.bins_.push_back(search->second);
