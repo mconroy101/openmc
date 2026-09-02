@@ -8,7 +8,7 @@ void CellBornFilter::get_all_bins(
   const Particle& p, TallyEstimator estimator, FilterMatch& match) const
 {
   for (const auto& entry : map_) {
-    write_message(1, "key: {}, value: {}", entry.first, entry.second);
+    // write_message(1, "key: {}, value: {}", entry.first, entry.second);
   }
   auto search = map_.find(p.cell_born());
   if (search != map_.end()) {
